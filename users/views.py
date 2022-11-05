@@ -6,9 +6,12 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView
+from rest_framework.generics import CreateAPIView
+from rest_framework.viewsets import ModelViewSet
 
 from homework27.settings import TOTAL_ON_PAGE
 from users.models import User, Location
+from users.serializers import *
 
 
 class UserListView(ListView):
@@ -36,6 +39,7 @@ class UserListView(ListView):
         response['num_pages'] = paginator.num_pages
 
         return JsonResponse(response, safe=False)
+
 
 
 class UserDetailView(DetailView):
@@ -87,35 +91,41 @@ class UserUpdateView(UpdateView):
             }, safe=False)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class UserCreateView(CreateView):
-    model = User
-    fields = ["username"]
+#@method_decorator(csrf_exempt, name='dispatch')
+#class UserCreateView(CreateView):
+    #model = User
+    #fields = ["username"]
 
-    def post(self, request, *args, **kwargs):
-        data = json.loads(request.body)
-        user = User.objects.create(
-            username=data['username'],
-            first_name=data['first_name'],
-            last_name=data['last_name'],
-            age=data['age'],
-            role=data['role']
-        )
+    #def post(self, request, *args, **kwargs):
+        #data = json.loads(request.body)
+        #user = User.objects.create(
+        #    username=data['username'],
+        #    first_name=data['first_name'],
+        #    last_name=data['last_name'],
+        #    age=data['age'],
+        #    role=data['role'])
 
-        if 'locations' in data:
-            for loc_name in data['locations']:
-                loc, _ = Location.objects.get_or_create(name=loc_name)
-                user.location.add(loc)
+        #if 'locations' in data:
+        #    for loc_name in data['locations']:
+        #        loc, _ = Location.objects.get_or_create(name=loc_name)
+        #        user.location.add(loc)
 
-        return JsonResponse({
-            'id': user.pk,
-            'username': user.username,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'role': user.role,
-            'age': user.age,
-            'locations': list(map(str, user.location.all()))
-            }, safe=False)
+        #return JsonResponse({
+        #    'id': user.pk,
+        #    'username': user.username,
+        #    'first_name': user.first_name,
+        #    'last_name': user.last_name,
+        #    'role': user.role,
+        #    'age': user.age,
+        #    'locations': list(map(str, user.location.all()))
+        #    }, safe=False)
+
+
+class UserCreateView(CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserCreateSerializer
+
+
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -126,3 +136,8 @@ class UserDeleteView(DeleteView):
     def delete(self, request, *args, **kwargs):
         super().delete(request, *args, **kwargs)
         return JsonResponse({'status': 'ok'}, status=204)
+
+
+class LocationViewSet(ModelViewSet):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
