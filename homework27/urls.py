@@ -20,12 +20,14 @@ from rest_framework import routers
 
 from ads.views.ad import *
 from ads.views.category import *
+from ads.views.selection import SelectionViewSet
 from homework27 import settings
 from users.views import LocationViewSet
 
 router = routers.SimpleRouter()
 router.register("location", LocationViewSet)
 router.register("ad", AdViewSet)
+router.register("selection", SelectionViewSet)
 
 
 urlpatterns = [
