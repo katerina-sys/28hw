@@ -7,10 +7,17 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, DeleteView, UpdateView, ListView, CreateView
+from rest_framework.generics import CreateAPIView
 
 from ads.models import Ad, Category
+from ads.serializers import CategorySerializer
 from homework27.settings import TOTAL_ON_PAGE
 from users.models import User
+
+
+class CategoryCreateView(CreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
 
 class CategoryListView(ListView):
@@ -24,8 +31,9 @@ class CategoryListView(ListView):
         obj = paginator.get_page(page)
         response = {}
         items_list = [{
-                'id': cat.pk,
-                'name': cat.name}for cat in obj]
+            'id': cat.pk,
+            'name': cat.name,
+            'slug': cat.slug} for cat in obj]
         response['items'] = items_list
         response['total'] = self.object_list.count()
         response['num_pages'] = paginator.num_pages
@@ -69,17 +77,18 @@ class CategoryUpdateView(UpdateView):
             'name': self.object.name}, safe=False)
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class CategoryCreateView(CreateView):
-    model = Category
-    fields = ["name"]
+#@method_decorator(csrf_exempt, name='dispatch')
+#class CategoryCreateView(CreateView):
+    #model = Category
+    #fields = ["name"]
 
-    def post(self, request, *args, **kwargs):
-        data = json.loads(request.body)
-        author = get_object_or_404(User, username=data['author'])
-        category = get_object_or_404(Category, name=data['category'])
+    #def post(self, request, *args, **kwargs):
+       # data = json.loads(request.body)
+        #author = get_object_or_404(User, username=data['author'])
+        #category = get_object_or_404(Category, name=data['category'])
 
-        cat = Category.objects.create(name=data['name'])
-        return JsonResponse({
-            'id': cat.pk,
-            'name': cat.name}, safe=False)
+        #cat = Category.objects.create(name=data['name'])
+        #return JsonResponse({
+        #    'id': cat.pk,
+        #    'name': cat.name,
+        #    'slug': cat.slug}, safe=False)

@@ -12,7 +12,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from ads.models import Ad, Category
 from ads.permissions import IsOwnerAdOrStaff
-from ads.serializers import AdSerializer, AdDetailSerializer, AdListSerializer
+from ads.serializers import AdSerializer, AdDetailSerializer, AdListSerializer, AdCreateSerializer
 from homework27.settings import TOTAL_ON_PAGE
 from users.models import User
 
@@ -26,7 +26,8 @@ class AdViewSet(ModelViewSet):
     default_serializer = AdSerializer
     serializer_classes = {
         'retrieve': AdDetailSerializer,
-        'list': AdListSerializer
+        'list': AdListSerializer,
+        'create': AdCreateSerializer
     }
 
     default_permission = [AllowAny()]
